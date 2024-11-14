@@ -16,7 +16,6 @@ class ListingsController
   }
   public function index()
   {
-    inspectAndDie(Validation::match(1, 1));
     $listings = $this->db->query('SELECT * FROM workopia.listings ')->fetchAll();
 
     loadView('/listings/index', [
@@ -49,5 +48,41 @@ class ListingsController
     loadView('listings/show', [
       'listing' => $listing
     ]);
+  }
+
+  /**
+   * Store data in database
+   * 
+   * @return void
+   */
+  public function store()
+  {
+    $allowedFields = ['title', 'description', 'salary', 'tags', 'company', 'address', 'city', 'state', 'phone', 'email', 'requirements', 'benefits'];
+
+    $newListingData = array_intersect_key($_POST, array_flip($allowedFields));
+
+    $newListingData['user_id'] = 1;
+
+    $newListingData = array_map('sanitize', $newListingData);
+
+    $requiredFields = ['title', 'description', 'email', 'city', 'state'];
+
+    $errors = [];
+
+    foreach ($requiredFields as $field) {
+      if (empty($newListingData[$field]) || !Validation::string($newListingData[$field])) {
+        $errors[$field] = ucfirst($field) . ' is required';
+      };
+    }
+
+    if (!empty($errors)) {
+      // Reload the view with errors
+      loadView('listings/create', [
+        'errors' => $errors,
+        'listings' => $newListingData
+      ]);
+    } else {
+      echo 'Succesed...';
+    }
   }
 }
