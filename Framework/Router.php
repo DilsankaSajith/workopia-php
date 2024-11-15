@@ -100,6 +100,11 @@ class Router
   {
     $requestMethod = $_SERVER['REQUEST_METHOD'];
 
+    // Check for requests other than GET & POST
+    if ($requestMethod === 'POST' && isset($_POST['_method'])) {
+      $requestMethod = strtoupper($_POST['_method']);
+    }
+
     foreach ($this->routes as $route) {
       // Split the current URI into segments
       $uriSegments = explode('/', trim($uri, '/'));
