@@ -11,13 +11,9 @@
         Job Info
       </h2>
       <input type="hidden" name="_method" value="PUT">
-      <?php if (isset($errors)): ?>
-        <?php foreach ($errors as $error): ?>
-          <div class="message bg-red-100 my-3 px-2">
-            <?= $error ?>
-          </div>
-        <?php endforeach ?>
-      <?php endif ?>
+      <?= loadPartial('errors', [
+        'errors' => $errors ?? []
+      ]) ?>
       <div class="mb-4">
         <input
           type="text"
