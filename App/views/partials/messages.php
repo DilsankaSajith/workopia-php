@@ -6,7 +6,7 @@
 <?php endif ?>
 
 <?php if (isset($_SESSION['error_message'])): ?>
-  <div class="message bg-green-100 my-3 p-3">
+  <div class="message bg-red-100 my-3 p-3">
     <?= $_SESSION['error_message'] ?>
   </div>
   <?php unset($_SESSION['error_message']) ?>

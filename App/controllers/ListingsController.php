@@ -2,8 +2,10 @@
 
 namespace App\Controllers;
 
+use Framework\Authorization;
 use Framework\Database;
 use Framework\Validation;
+use Session;
 
 class ListingsController
 {
@@ -16,7 +18,7 @@ class ListingsController
   }
   public function index()
   {
-    $listings = $this->db->query('SELECT * FROM workopia.listings ')->fetchAll();
+    $listings = $this->db->query('SELECT * FROM workopia.listings ORDER BY created_at DESC ')->fetchAll();
 
     loadView('/listings/index', [
       'listings' => $listings
@@ -67,7 +69,7 @@ class ListingsController
 
     $newListingData = array_intersect_key($_POST, array_flip($allowedFields));
 
-    $newListingData['user_id'] = 1;
+    $newListingData['user_id'] = Session::get('user')['id'];
 
     $newListingData = array_map('sanitize', $newListingData);
 
@@ -136,6 +138,11 @@ class ListingsController
     if (!$listing) {
       ErrorController::notFound('Listing not found');
       return;
+    }
+
+    if (!Authorization::isOwner($listing->user_id)) {
+      $_SESSION['error_message'] = 'You are not authorized to perform this action';
+      return redirect('/listings/' . $listing->id);
     }
 
     // echo '<script language="javascript">';
