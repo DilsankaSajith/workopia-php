@@ -115,6 +115,9 @@ class ListingsController
       $query = "INSERT INTO workopia.listings ({$fields}) VALUES ({$values})";
 
       $this->db->query($query, $newListingData);
+
+      Session::setFlashMessage('success_message', 'Listing created successfully');
+
       redirect('/listings');
     }
   }
@@ -141,7 +144,7 @@ class ListingsController
     }
 
     if (!Authorization::isOwner($listing->user_id)) {
-      $_SESSION['error_message'] = 'You are not authorized to perform this action';
+      Session::setFlashMessage('error_message', 'You are not authorized to perform this action');
       return redirect('/listings/' . $listing->id);
     }
 
@@ -151,7 +154,7 @@ class ListingsController
 
     $this->db->query('DELETE FROM workopia.listings WHERE id = :id', $params);
 
-    $_SESSION['success_message'] = 'Listing deleted successfully!';
+    Session::setFlashMessage('error_message', 'Listing deleted successfully');
 
     redirect('/listings');
   }
@@ -177,6 +180,12 @@ class ListingsController
       ErrorController::notFound('Listing not found');
       return;
     }
+
+    if (!Authorization::isOwner($listing->user_id)) {
+      Session::setFlashMessage('error_message', 'You are not authorized to update this listing');
+      return redirect('/listings/' . $listing->id);
+    }
+
     loadView('listings/edit', [
       'listing' => $listing
     ]);
@@ -201,6 +210,11 @@ class ListingsController
     if (!$listing) {
       ErrorController::notFound('Listing not found');
       return;
+    }
+
+    if (!Authorization::isOwner($listing->user_id)) {
+      Session::setFlashMessage('error_message', 'You are not authorized to update this listing');
+      return redirect('/listings/' . $listing->id);
     }
 
     $allowedFields = ['title', 'description', 'salary', 'tags', 'company', 'address', 'city', 'state', 'phone', 'email', 'requirements', 'benefits'];
@@ -241,7 +255,8 @@ class ListingsController
 
       $this->db->query($updateQuery, $updateValues);
 
-      $_SESSION['success_message'] = "Listing updated";
+      Session::setFlashMessage('success_message', 'Listing updated successfuly');
+
 
       redirect('/listings/' . $id);
     }
